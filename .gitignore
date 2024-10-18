@@ -1,0 +1,9 @@
+*.png
+*.zip
+*.txt
+datasets/
+
+*log
+tros/gz/install
+tros/gz/build
+
