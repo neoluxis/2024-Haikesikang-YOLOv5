@@ -23,4 +23,4 @@ names:
   5: bcf
 
 # Download script/URL (optional)
-download: 
+download: https://github.com/neoluxis/2024-Haikesikang-Ultralytics/releases/download/v10.20/dataset.zip 
