@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.node import Node
+from std_msgs.msg import String
 from ai_msgs.msg import PerceptionTargets 
 
 from serial import Serial
@@ -21,6 +22,9 @@ class GzSerial(Node):
         self.ser = Serial(ser_dev, 115200)
         self.get_logger().info(f'Serial port {ser_dev} init')
         self.model_res = self.create_subscription(PerceptionTargets, "hobot_dnn_detection", self.det_callback, 10)
+        self.serial_send_pub = self.create_publisher(String, "serial_send", 10)
+        self.xin = 180
+        self.yin = 420
 
     def det_callback(self, msg):
         #self.get_logger().info("Det recvd!")
@@ -31,7 +35,12 @@ class GzSerial(Node):
             cty = roi.y_offset + roi.height // 2
             conf = tg.rois[0].confidence  
             self.get_logger().info(f'{tg.type}, {ctx}, {cty}, {conf:.2f}')
-            self.send(tg.type, ctx, cty)
+            if ctx > 320 - self.xin and ctx < 320 + self.xin and cty < self.yin:
+                self.send(tg.type, ctx, cty)
+            elif tg.type.endswith('cf'):
+                self.send(tg.type, ctx, cty)
+            else:
+                self.get_logger().info("Target out from region!")
     
     def name2ser(self, c):
         if c == 'rcf':
@@ -55,15 +64,23 @@ class GzSerial(Node):
         sent.append(int(cty * 253 / 480))
         sent.append(0xFE)
         self.get_logger().info(f'Data: {sent}')
+        # self.pub_sent(sent)
         sent = ByteArray(sent)
+        self.ser.write(sent)
         self.get_logger().info(f'Sent: {sent}')
+        self.pub_sent(sent)
+    
+    def pub_sent(self, sent):
+        msg = String()
+        msg.data = f'{sent}'
+        self.serial_send_pub.publish(msg) 
     
 
 
 def main(args=None):
     rclpy.init(args=args)
-    node = GzSerial("gz_serial")
-    rclpy.spin(node)
+    serial_node = GzSerial("gz_serial")
+    rclpy.spin(serial_node)
     rclpy.shutdown()
 
 
