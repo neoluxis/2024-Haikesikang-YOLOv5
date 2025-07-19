@@ -23,4 +23,4 @@ names:
   5: bcf
 
 # Download script/URL (optional)
-download: https://github.com/neoluxis/2024-Haikesikang-YOLOv5/releases/download/v1022-v5n-e400/dataset.zip
+download: https://github.com/neoluxis/2024-Haikesikang-YOLOv5/releases/download/latest/dataset.zip
