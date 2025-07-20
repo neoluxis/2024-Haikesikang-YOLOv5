@@ -96,7 +96,7 @@ class Detect(nn.Module):
         self.m = nn.ModuleList(nn.Conv2d(x, self.no * self.na, 1) for x in ch)  # output conv
         self.inplace = inplace  # use inplace ops (e.g. slice assignment)
 
-    def forward_(self, x):
+    def forward(self, x):
         """Processes input through YOLOv5 layers, altering shape for detection: `x(bs, 3, ny, nx, 85)`."""
         z = []  # inference output
         for i in range(self.nl):
@@ -122,7 +122,7 @@ class Detect(nn.Module):
 
         return x if self.training else (torch.cat(z, 1),) if self.export else (torch.cat(z, 1), x)
         # 训练时和测试时 End
-    def forward(self,x):
+    def _forward(self,x):
         for i in range(self.nl):
         # 导出时更改 Begin
             x[i] = self.m[i](x[i]).permute(0, 2, 3, 1).contiguous()
